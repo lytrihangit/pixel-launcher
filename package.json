@@ -1,6 +1,6 @@
 {
 	"name": "pixelmc-launcher",
-	"version": "1.1.18",
+	"version": "1.1.19",
 	"description": "Pixel Launcher",
 	"main": "./app/app.js",
 	"productName": "Pixel Launcher",

@@ -47,8 +47,8 @@ var CUSTOM_FOLDERS = [];
 const JRE_PATH = path.join(PIXEL_DIR, "jre");
 const JRE_PATH_32 = path.join(JRE_PATH, "x32");
 const JRE_PATH_64 = path.join(JRE_PATH, "x64");
-const JRE_32 = path.join(JRE_PATH, "jre_x32.exe");
-const JRE_64 = path.join(JRE_PATH, "jre_x64.exe");
+const JRE_32 = path.join(JRE_PATH, "x32.zip");
+const JRE_64 = path.join(JRE_PATH, "x64.zip");
 
 // version path
 const VERSION_MANIFEST_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
@@ -222,14 +222,14 @@ async function downloadJava(version, isForge) {
 	var jreURL, jrePath, jreSize, jreInstallDir, jreHash, jreInstallHash;
 
 	if (process.arch == "x64") {
-		jreURL = MC_FORGE_LIBS["jre_64"]["url"];
+		jreURL = MC_FORGE_LIBS["LTH"]["java_x64"]["url"];
 		jrePath = JRE_64;
 		jreInstallDir = JRE_PATH_64;
 		jreHash = MC_FORGE_LIBS["jre_64"]["hash"];
 		jreSize = MC_FORGE_LIBS["jre_64"]["size"];
 		jreInstallHash = MC_FORGE_LIBS["jre_64"]["install_hash"];
 	} else {
-		jreURL = MC_FORGE_LIBS["jre_32"]["url"];
+		jreURL = MC_FORGE_LIBS["LTH"]["java_x32"]["url"];
 		jrePath = JRE_32;
 		jreInstallDir = JRE_PATH_32;
 		jreHash = MC_FORGE_LIBS["jre_32"]["hash"];
@@ -249,29 +249,40 @@ async function downloadJava(version, isForge) {
 	if (fs.existsSync(JAVA)) {
 		await downloadMods(version, isForge);
 	} else {
+		
 		progress(p7);
 		await download(jreURL, jrePath, null, function (currentSize, currentPercent, mbps, time) {
 			progress(p7, `${currentPercent} % - ${mbps} MB/s - ${Math.floor(time / 60)}m${Math.floor(time % 60)}s`);
 		});
+		
+		if (fs.existsSync(jrePath)) {
+			await extract(jrePath, { dir: jreInstallDir });
+		}
 
-		var command = [
-			"Start-Process",
-			"-FilePath",
-			`"${jrePath}"`,
-			"-ArgumentList",
-			`'/s INSTALLDIR="${jreInstallDir}"'`,
-			"-Wait",
-			"-PassThru"
-		].join(" ");
+		setTimeout(async () => {
+			await downloadMods(version, isForge);
+		}, 2000);
 
-		var powershell = spawn("powershell.exe", [command]);
+		// var command = [
+		// 	"Start-Process",
+		// 	"-FilePath",
+		// 	`"${jrePath}"`,
+		// 	"-ArgumentList",
+		// 	`'/s INSTALLDIR="${jreInstallDir}"'`,
+		// 	"-Wait",
+		// 	"-PassThru"
+		// ].join(" ");
 
-		powershell.on("exit", function () {
-			progress(p8);
-			setTimeout(async () => {
-				await downloadMods(version, isForge);
-			}, 2000);
-		});
+		// var powershell = spawn("powershell.exe", [command]);
+
+		// powershell.on("exit", function () {
+		// 	progress(p8);
+		// 	setTimeout(async () => {
+		// 		await downloadMods(version, isForge);
+		// 	}, 2000);
+		// });
+		// tai file java
+		
 	}
 }
 

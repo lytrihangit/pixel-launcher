@@ -7,7 +7,6 @@ const hwid = require(`node-hwid`)
 
 var mainWin;
 
-
 global.channels = {
 	game: {
 		mods: "game-mods",
